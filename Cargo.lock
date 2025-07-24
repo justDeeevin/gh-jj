@@ -808,7 +808,7 @@ dependencies = [
 
 [[package]]
 name = "gh-jj"
-version = "1.0.0"
+version = "0.1.0"
 dependencies = [
  "clap",
  "color-eyre",
