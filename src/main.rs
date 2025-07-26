@@ -62,7 +62,7 @@ impl FromStr for Source {
     type Err = Infallible;
 
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        let regex = Regex::new(r"^(?:(\w+)\/)?(\w+)$").unwrap();
+        let regex = Regex::new(r"^(?:([a-zA-Z0-9-]+)\/)?([a-zA-Z0-9_.-]+)$").unwrap();
         Ok(if let Some(captures) = regex.captures(s) {
             Source::GitHub {
                 owner: captures.get(1).map(|m| m.as_str().to_string()),
