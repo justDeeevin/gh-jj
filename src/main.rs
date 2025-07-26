@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand};
 use color_eyre::{
     Result,
-    eyre::{Context, ContextCompat},
+    eyre::{Context, ContextCompat, eyre},
 };
 use octocrab::Octocrab;
 use regex::Regex;
@@ -163,7 +163,14 @@ async fn clone(cmd: CloneCommand) -> Result<()> {
         }
     }
 
-    jj_clone.wait().await.context("JJ clone failed")?;
+    if !jj_clone
+        .wait()
+        .await
+        .context("Failed to execute jj cli")?
+        .success()
+    {
+        return Err(eyre!("JJ clone failed"));
+    }
 
     let Some(upstream) = upstream else {
         return Ok(());
@@ -174,7 +181,7 @@ async fn clone(cmd: CloneCommand) -> Result<()> {
         .or(extracted_directory)
         .context("Couldn't find directory")?;
 
-    Command::new("jj")
+    if !Command::new("jj")
         .arg("-R")
         .arg(directory)
         .arg("git")
@@ -184,7 +191,11 @@ async fn clone(cmd: CloneCommand) -> Result<()> {
         .arg(upstream.url.as_str())
         .status()
         .await
-        .context("Failed to add upstream remote")?;
+        .context("Failed to execute jj cli")?
+        .success()
+    {
+        return Err(eyre!("Failed to add upstream remote"));
+    }
 
     Ok(())
 }
